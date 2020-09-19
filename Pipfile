@@ -11,6 +11,8 @@ pre-commit = "*"
 pylint = "*"
 flask = "*"
 python-dotenv = "*"
+pep8 = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.8"
