@@ -1,17 +1,23 @@
 import os
 
 from flask import Flask, jsonify
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 
 from log import Log
 
 LOGGER = Log("work-at-olist").get_logger(logger_name="app")
+
+db = SQLAlchemy()
 
 
 def create_app(test_config=None):
     LOGGER.info("Initialize Flask app")
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY="TeMpOrArY"
+        SECRET_KEY="TeMpOrArY",
+        SQLALCHEMY_DATABASE_URI="sqlite:///./olist.db",
+        SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
 
     if test_config is None:
@@ -26,6 +32,11 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    LOGGER.info("Initialize the application for the use with its DB")
+    db.init_app(app)
+
+    migrate = Migrate(app, db)
 
     # Error handling
     @app.errorhandler(400)
