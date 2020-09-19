@@ -9,6 +9,8 @@ verify_ssl = true
 autopep8 = "*"
 pre-commit = "*"
 pylint = "*"
+flask = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.8"
