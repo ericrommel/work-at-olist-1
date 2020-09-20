@@ -1,0 +1,304 @@
+{
+	"info": {
+		"_postman_id": "49a5db89-ed7d-4c1d-a014-c2faaa2a76a0",
+		"name": "Olist",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "add author",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "66a3c8dd-b526-47e4-8561-9c49e6da3b34",
+						"exec": [
+							"pm.test(\"Response code is 201\", function() {\r",
+							"    pm.expect(pm.response).to.have.property('code', 201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response status is Created\", function() {\r",
+							"    pm.expect(pm.response).to.have.property('status', 'CREATED');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response Body is not empty\", function () {\r",
+							"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a425da0a-f044-4dbd-9553-da3013357ab9",
+						"exec": [
+							"// Name generator\r",
+							"randomFirstName = Math.random().toString(36).substring(2, 8) + Math.random().toString(36).substring(2, 8);\r",
+							"randomLastName = Math.random().toString(36).substring(2, 8) + Math.random().toString(36).substring(2, 8);\r",
+							"\r",
+							"pm.environment.set('authorName', `${randomFirstName} ${randomLastName}`)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"{{authorName}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api}}/authors/add",
+					"host": [
+						"{{api}}"
+					],
+					"path": [
+						"authors",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List authors",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "58185125-7468-4252-8a89-4652d59a1c5f",
+						"exec": [
+							"pm.test(\"Response code is 200\", function() {\r",
+							"    pm.expect(pm.response).to.have.property('code', 200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response status is OK\", function() {\r",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response Body is not empty\", function () {\r",
+							"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+							"});\r",
+							"\r",
+							"for (var i of pm.response.json()) {\r",
+							"    pm.environment.set('authorId', i.id)\r",
+							"    break\r",
+							"}\r",
+							"\r",
+							"pm.test(`Author selected: ${pm.environment.get('authorId')}`, function () {\r",
+							"    pm.expect(true).to.be.true;\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api}}/authors",
+					"host": [
+						"{{api}}"
+					],
+					"path": [
+						"authors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Detail an author",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7256a062-8d76-4508-8800-fe7a509c596a",
+						"exec": [
+							"pm.test(\"Response code is 200\", function() {\r",
+							"    pm.expect(pm.response).to.have.property('code', 200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response status is OK\", function() {\r",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response Body is not empty\", function () {\r",
+							"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api}}/authors/{{authorId}}",
+					"host": [
+						"{{api}}"
+					],
+					"path": [
+						"authors",
+						"{{authorId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit an author",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "aabeab67-485a-49db-aa5c-f3f8e9123c0c",
+						"exec": [
+							"pm.test(\"Response code is 200\", function() {\r",
+							"    pm.expect(pm.response).to.have.property('code', 200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response status is OK\", function() {\r",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response Body is not empty\", function () {\r",
+							"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "9cd233b8-3746-41ac-b6dc-70facb6f6352",
+						"exec": [
+							"// Name generator\r",
+							"randomFirstName = Math.random().toString(36).substring(2, 8) + Math.random().toString(36).substring(2, 8);\r",
+							"randomLastName = Math.random().toString(36).substring(2, 8) + Math.random().toString(36).substring(2, 8);\r",
+							"\r",
+							"pm.environment.set('authorName', `${randomFirstName} ${randomLastName}`)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"{{authorName}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api}}/authors/edit/{{authorId}}",
+					"host": [
+						"{{api}}"
+					],
+					"path": [
+						"authors",
+						"edit",
+						"{{authorId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete an author",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7a46d129-cbd0-4110-a23d-c4192897c8b3",
+						"exec": [
+							"pm.test(\"Response code is 200\", function() {\r",
+							"    pm.expect(pm.response).to.have.property('code', 200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response status is OK\", function() {\r",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response Body is not empty\", function () {\r",
+							"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response message should be 'The author has successfully been deleted.'\", function () {\r",
+							"    pm.expect(pm.response.json().message).to.be.eq(\"The author has successfully been deleted.\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api}}/authors/delete/{{authorId}}",
+					"host": [
+						"{{api}}"
+					],
+					"path": [
+						"authors",
+						"delete",
+						"{{authorId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
