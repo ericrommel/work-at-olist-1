@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, jsonify
+from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
@@ -9,6 +10,7 @@ from log import Log
 LOGGER = Log("work-at-olist").get_logger(logger_name="app")
 
 db = SQLAlchemy()
+ma = Marshmallow()
 
 
 def create_app(test_config=None):
@@ -37,6 +39,11 @@ def create_app(test_config=None):
     db.init_app(app)
 
     migrate = Migrate(app, db)
+
+    from src import models
+
+    from src.author import author as author_blueprint
+    app.register_blueprint(author_blueprint)
 
     # Error handling
     @app.errorhandler(400)
