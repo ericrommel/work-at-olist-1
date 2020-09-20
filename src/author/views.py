@@ -1,8 +1,11 @@
-from flask import abort, jsonify, request
+import os
+from csv import DictReader
+from flask import abort, jsonify, request, app
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
+from werkzeug.utils import secure_filename
 
 from . import author
-from .. import db, LOGGER
+from .. import allowed_file, current_dir, db, LOGGER, UPLOAD_FOLDER
 from ..models import Author, authors_schema, author_schema
 
 
@@ -47,7 +50,7 @@ def list_books_for_an_author(id):
     return author_schema.jsonify(author.books)
 
 
-@author.route("/authors/add", methods=["GET", "POST"])
+@author.route("/authors/add", methods=["POST"])
 def add_author():
     """
     Add an author to the database
@@ -78,7 +81,42 @@ def add_author():
     return author_schema.jsonify(author_instance), 201
 
 
-@author.route("/authors/edit/<int:id>", methods=["GET", "PUT"])
+@author.route("/authors/add/bulk", methods=["POST"])
+def add_author_bulk():
+    """
+    Add authors in bulk
+    """
+
+    LOGGER.info('Import authors in bulk')
+
+    csv_file = 'author/authors_bulk.csv'
+    data_file = os.path.join(current_dir, csv_file)
+
+    if 'csv_upload' in request.files:
+        LOGGER.info('Request there is a file part. Using it.')
+        data_file = request.files['csv_upload']
+        if data_file and allowed_file(data_file.filename):
+            filename = secure_filename(data_file.filename)
+            data_file.save(os.path.join(current_dir, f'static/{filename}'))
+            data_file = os.path.join(current_dir, f'static/{data_file.filename}')
+
+    with open(data_file, newline='') as csv_file:
+        reader = DictReader(csv_file)
+
+        LOGGER.info("Add authors in bulk to the database")
+        try:
+            db.session.bulk_insert_mappings(Author, reader)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            abort(403, f"SQLAlchemyError: {e}")
+        except Exception as e:
+            abort(500, e)
+
+    return jsonify({"message": "The authors have successfully been imported."}), 201
+
+
+@author.route("/authors/edit/<int:id>", methods=["PUT"])
 def edit_author(id):
     """
     Edit an author
@@ -106,7 +144,7 @@ def edit_author(id):
     return author_schema.jsonify(author_instance), 200
 
 
-@author.route("/authors/delete/<int:id>", methods=["GET", "DELETE"])
+@author.route("/authors/delete/<int:id>", methods=["DELETE"])
 def delete_author(id):
     """
     Delete an author from the database

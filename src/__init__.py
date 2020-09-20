@@ -12,6 +12,14 @@ LOGGER = Log("work-at-olist").get_logger(logger_name="app")
 db = SQLAlchemy()
 ma = Marshmallow()
 
+ALLOWED_EXTENSIONS = {'csv'}
+current_dir = os.path.abspath(os.path.dirname(__file__))
+UPLOAD_FOLDER = '/src/static'
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 def create_app(test_config=None):
     LOGGER.info("Initialize Flask app")
@@ -19,7 +27,8 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY="TeMpOrArY",
         SQLALCHEMY_DATABASE_URI="sqlite:///./olist.db",
-        SQLALCHEMY_TRACK_MODIFICATIONS=False
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        UPLOAD_FOLDER=UPLOAD_FOLDER
     )
 
     if test_config is None:
