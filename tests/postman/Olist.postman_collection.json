@@ -91,7 +91,7 @@
 							"    pm.expect(pm.response.json()).to.not.be.empty;\r",
 							"});\r",
 							"\r",
-							"for (var i of pm.response.json()) {\r",
+							"for (var i of pm.response.json().results) {\r",
 							"    pm.environment.set('authorId', i.id)\r",
 							"    break\r",
 							"}\r",
@@ -123,12 +123,22 @@
 					}
 				},
 				"url": {
-					"raw": "{{api}}/authors",
+					"raw": "{{api}}/authors?start=1&limit=10",
 					"host": [
 						"{{api}}"
 					],
 					"path": [
 						"authors"
+					],
+					"query": [
+						{
+							"key": "start",
+							"value": "1"
+						},
+						{
+							"key": "limit",
+							"value": "10"
+						}
 					]
 				}
 			},

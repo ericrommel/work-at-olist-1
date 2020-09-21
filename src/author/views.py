@@ -1,6 +1,6 @@
 import os
 from csv import DictReader
-from flask import abort, jsonify, request, app
+from flask import abort, jsonify, request, app, url_for
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from werkzeug.utils import secure_filename
 
@@ -9,9 +9,47 @@ from .. import allowed_file, current_dir, db, LOGGER, UPLOAD_FOLDER
 from ..models import Author, authors_schema, author_schema
 
 
+def get_paginated_list(query_result: list, url: str, start: int, limit: int) -> dict:
+    """
+    Return a paginate response
+    """
+
+    if not isinstance(start, int):
+        start = int(start)
+
+    if not isinstance(limit, int):
+        limit = int(limit)
+
+    count = len(query_result)
+
+    if count < start:
+        abort(404)
+
+    pages = {"start": start, "limit": limit, "count": count}
+
+    LOGGER.info("Build the urls to return")
+    if start == 1:
+        pages["previous"] = ""
+    else:
+        start_copy = max(1, start - limit)
+        limit_copy = start - 1
+        pages["previous"] = url + "?start=%d&limit=%d" % (start_copy, limit_copy)
+
+    if start + limit > count:
+        pages["next"] = ""
+    else:
+        start_copy = start + limit
+        pages["next"] = url + "?start=%d&limit=%d" % (start_copy, limit)
+
+    LOGGER.info("Extract result according to the bounds")
+    pages["results"] = query_result[(start - 1) : (start - 1 + limit)]
+    return pages
+
+
 # Author views
 @author.route("/authors", methods=["GET"])
-def list_authors():
+@author.route("/authors/page/<int:page>")
+def list_authors(page=1, per_page=20):
     """
     List all authors
     """
@@ -27,7 +65,14 @@ def list_authors():
         return jsonify({"Warning": "There is no data to show"})
 
     LOGGER.info("Response the list of authors")
-    return jsonify(all_authors)
+    return jsonify(
+        get_paginated_list(
+            query_result=all_authors,
+            url=url_for("book.list_books"),
+            start=request.args.get("start", page),
+            limit=request.args.get("limit", per_page),
+        )
+    )
 
 
 @author.route("/authors/<int:id>", methods=["GET"])
