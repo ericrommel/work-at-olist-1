@@ -1,3 +1,4 @@
+from flask import url_for
 from sqlalchemy.orm import relationship
 
 from src import db, ma
@@ -20,6 +21,9 @@ class Author(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), index=True)
     # books = relationship('Book', secondary=association_table, backref='authors')
+
+    def get_url(self):
+        return url_for("author.list_authors", id=self.id, _external=True)
 
     def __repr__(self):
         return f"<Author: {self.name}>"
@@ -49,6 +53,9 @@ class Book(db.Model):
     edition = db.Column(db.String(10), index=True, nullable=False)
     publication_year = db.Column(db.Integer(), index=True, nullable=False)
     authors = relationship('Author', secondary=association_table, backref='books')
+
+    def get_url(self):
+        return url_for("book.list_books", id=self.id, _external=True)
 
     def __repr__(self):
         return f"<Book: {self.name}>"

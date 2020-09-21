@@ -1,6 +1,4 @@
-import sqlite3
-
-from flask import abort, jsonify, request
+from flask import abort, jsonify, request, url_for
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 from . import book
@@ -8,9 +6,47 @@ from .. import db, LOGGER
 from ..models import Book, books_schema, book_schema
 
 
+def get_paginated_list(query_result, url: str, start: int, limit: int) -> dict:
+    """
+    Return a paginate response
+    """
+
+    if not isinstance(start, int):
+        start = int(start)
+
+    if not isinstance(limit, int):
+        limit = int(limit)
+
+    count = len(query_result)
+
+    if count < start:
+        abort(404)
+
+    pages = {"start": start, "limit": limit, "count": count}
+
+    LOGGER.info("Build the urls to return")
+    if start == 1:
+        pages["previous"] = ""
+    else:
+        start_copy = max(1, start - limit)
+        limit_copy = start - 1
+        pages["previous"] = url + "?start=%d&limit=%d" % (start_copy, limit_copy)
+
+    if start + limit > count:
+        pages["next"] = ""
+    else:
+        start_copy = start + limit
+        pages["next"] = url + "?start=%d&limit=%d" % (start_copy, limit)
+
+    LOGGER.info("Extract result according to the bounds")
+    pages["results"] = query_result[(start - 1) : (start - 1 + limit)]
+    return pages
+
+
 # Books views
 @book.route("/books", methods=["GET"])
-def list_books():
+@book.route("/books/page/<int:page>")
+def list_books(page=1, per_page=20):
     """
     List all books
     """
@@ -26,7 +62,14 @@ def list_books():
         return jsonify({"Warning": "There is no data to show"})
 
     LOGGER.info("Response the list of books")
-    return jsonify(all_books)
+    return jsonify(
+        get_paginated_list(
+            query_result=all_books,
+            url=url_for("book.list_books"),
+            start=request.args.get("start", page),
+            limit=request.args.get("limit", per_page),
+        )
+    )
 
 
 @book.route("/books/<int:id>", methods=["GET"])
@@ -40,7 +83,7 @@ def books_detail(id):
 
 
 @book.route("/books/<int:id>/authors", methods=["GET"])
-def list_books_for_a_book(id):
+def list_authors_for_a_book(id):
     """
     List all authors for a book
     """

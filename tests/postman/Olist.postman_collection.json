@@ -646,7 +646,7 @@
 							"    pm.expect(pm.response.json()).to.not.be.empty;\r",
 							"});\r",
 							"\r",
-							"for (var i of pm.response.json()) {\r",
+							"for (var i of pm.response.json().results) {\r",
 							"    pm.environment.set('bookId', i.id)\r",
 							"    break\r",
 							"}\r",
@@ -654,7 +654,6 @@
 							"pm.test(`Book selected: ${pm.environment.get('bookId')}`, function () {\r",
 							"    pm.expect(true).to.be.true;\r",
 							"});\r",
-							"\r",
 							""
 						],
 						"type": "text/javascript"
@@ -677,12 +676,22 @@
 					}
 				},
 				"url": {
-					"raw": "{{api}}/books",
+					"raw": "{{api}}/books?start=1&limit=10",
 					"host": [
 						"{{api}}"
 					],
 					"path": [
 						"books"
+					],
+					"query": [
+						{
+							"key": "start",
+							"value": "1"
+						},
+						{
+							"key": "limit",
+							"value": "10"
+						}
 					]
 				}
 			},
