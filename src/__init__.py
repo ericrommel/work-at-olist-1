@@ -54,6 +54,9 @@ def create_app(test_config=None):
     from src.author import author as author_blueprint
     app.register_blueprint(author_blueprint)
 
+    from src.book import book as book_blueprint
+    app.register_blueprint(book_blueprint)
+
     # Error handling
     @app.errorhandler(400)
     def bad_request(e):

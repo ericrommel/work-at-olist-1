@@ -1,6 +1,6 @@
-from sqlalchemy.orm import relationship, backref
-from src import db, ma
+from sqlalchemy.orm import relationship
 
+from src import db, ma
 
 association_table = db.Table(
     'association',
@@ -45,9 +45,9 @@ class Book(db.Model):
     __tablename__ = 'books'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(60), index=True)
-    edition = db.Column(db.String(10), index=True)
-    publication_year = db.Column(db.Integer(), index=True)
+    name = db.Column(db.String(60), index=True, nullable=False)
+    edition = db.Column(db.String(10), index=True, nullable=False)
+    publication_year = db.Column(db.Integer(), index=True, nullable=False)
     authors = relationship('Author', secondary=association_table, backref='books')
 
     def __repr__(self):
