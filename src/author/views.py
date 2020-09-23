@@ -1,3 +1,4 @@
+import json
 import os
 from csv import DictReader
 from flask import abort, jsonify, request, app, url_for
@@ -6,7 +7,7 @@ from werkzeug.utils import secure_filename
 
 from . import author
 from .. import allowed_file, current_dir, db, LOGGER, UPLOAD_FOLDER
-from ..models import Author, authors_schema, author_schema
+from ..models import Author, authors_schema, author_schema, AuthorBook
 
 
 def get_paginated_list(query_result: list, url: str, start: int, limit: int) -> dict:
@@ -42,7 +43,7 @@ def get_paginated_list(query_result: list, url: str, start: int, limit: int) -> 
         pages["next"] = url + "?start=%d&limit=%d" % (start_copy, limit)
 
     LOGGER.info("Extract result according to the bounds")
-    pages["results"] = query_result[(start - 1) : (start - 1 + limit)]
+    pages["results"] = query_result[(start - 1): (start - 1 + limit)]
     return pages
 
 
@@ -55,23 +56,22 @@ def list_authors(page=1, per_page=20):
     """
 
     LOGGER.info("Get the list of authors from the database")
+    all_authors = None
     try:
-        all_authors = authors_schema.dump(Author.query.order_by(Author.id.asc()))
-    except OperationalError:
-        LOGGER.info("There is no authors in the database")
-        all_authors = None
+        all_authors = authors_schema.dump(Author.query.order_by(Author.name.asc()), many=True)
+    except Exception as error:
+        LOGGER.error(f"ExceptionError: {error}")
+        abort(500, error)
 
     if all_authors is None:
-        return jsonify({"Warning": "There is no data to show"})
+        return jsonify({"message": "There is no data to show"})
 
-    LOGGER.info("Response the list of authors")
-    return jsonify(
-        get_paginated_list(
-            query_result=all_authors,
-            url=url_for("book.list_books"),
-            start=request.args.get("start", page),
-            limit=request.args.get("limit", per_page),
-        )
+    LOGGER.info(f"Response the list of authors: {all_authors}")
+    return get_paginated_list(
+        query_result=all_authors,
+        url=url_for("author.list_authors"),
+        start=request.args.get("start", page),
+        limit=request.args.get("limit", per_page),
     )
 
 
@@ -81,18 +81,16 @@ def author_detail(id):
     List details for an author
     """
 
-    author = Author.query.get_or_404(id)
-    return author_schema.jsonify(author)
+    author_instance = Author.query.get_or_404(id)
+    author_book_instance = AuthorBook.query.filter_by(author_id=author_instance.id).all()
+    books = [book.book_id for book in author_book_instance]
 
-
-@author.route("/authors/<int:id>/books", methods=["GET"])
-def list_books_for_an_author(id):
-    """
-    List all books for an author
-    """
-
-    author = Author.query.get_or_404(id)
-    return author_schema.jsonify(author.books)
+    LOGGER.info(f"Return details for the author: '{author_instance.name}'")
+    return {
+        'id': author_instance.id,
+        'name': author_instance.name,
+        'books': books
+    }, 200
 
 
 @author.route("/authors/add", methods=["POST"])
@@ -101,20 +99,21 @@ def add_author():
     Add an author to the database
     """
 
-    author_name = ""
-
-    LOGGER.info("Set author variable from request")
-    try:
-        author_name = request.json.get("name")
-    except KeyError as e:
-        abort(400, f"There is no key with that value: {e}")
+    request_fields = request.get_json() if request.get_json() else request.form
+    if not request_fields:
+        abort(400, "Name is a mandatory field.")
 
     author_instance = Author()
-    author_instance.name = author_name
-
-    LOGGER.info(f"Add author {author_name} to the database")
     try:
-        # Add author to the database
+        author_instance.name = request_fields.get("name")
+    except KeyError as e:
+        abort(400, "Name is a mandatory field.")
+
+    if request_fields.get("name") is None or not request_fields.get("name").strip():
+        abort(400, "Name cannot be empty or null.")
+
+    LOGGER.info(f"Add author {author_instance.name} to the database")
+    try:
         db.session.add(author_instance)
         db.session.commit()
     except SQLAlchemyError as e:
@@ -170,15 +169,14 @@ def edit_author(id):
     author_instance = Author.query.get_or_404(id)
 
     LOGGER.info("Set author variable from request")
+    request_fields = request.get_json() if request.get_json() else request.form
     try:
-        author_instance.name = request.json["name"]
-
+        author_instance.name = request_fields.get("name")
     except KeyError as e:
         abort(400, f"There is no key with that value: {e}")
 
     LOGGER.info(f"Edit author {author_instance.id} in the database")
     try:
-        # Edit author in the database
         db.session.commit()
     except SQLAlchemyError as e:
         db.session.rollback()

@@ -1,5 +1,4 @@
 from flask import url_for
-from sqlalchemy.orm import relationship
 
 from src import db, ma
 
@@ -38,7 +37,6 @@ class AuthorSchema(ma.SQLAlchemyAutoSchema):
         # Fields to expose
         fields = ("id", "name", "books")
         model = Author
-        # load_instance = True
 
 
 author_schema = AuthorSchema()
@@ -56,7 +54,6 @@ class Book(db.Model):
     name = db.Column(db.String(60), index=True, nullable=False)
     edition = db.Column(db.String(10), index=True, nullable=False)
     publication_year = db.Column(db.Integer(), index=True, nullable=False)
-    # authors = db.relationship('Author', secondary=association_table, backref='books', lazy="joined")
 
     def get_url(self):
         return url_for("book.list_books", id=self.id, _external=True)
@@ -66,15 +63,12 @@ class Book(db.Model):
 
 
 class BookSchema(ma.SQLAlchemyAutoSchema):
-    # authors = ma.Nested(AuthorSchema, many=True)
 
     class Meta:
         # Fields to expose
         fields = ("id", "name", "edition", "publication_year", "authors")
         model = Book
-        # load_instance = True
         include_fk = True
-    author = ma.Nested(AuthorSchema)
 
 
 book_schema = BookSchema()

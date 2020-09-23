@@ -55,14 +55,15 @@ def list_books(page=1, per_page=20):
     """
 
     LOGGER.info("Get the list of books from the database")
+    all_books = None
     try:
         all_books = books_schema.dump(Book.query.order_by(Book.name.asc()))
-    except OperationalError:
-        LOGGER.info("There is no book in the database")
-        all_books = None
+    except Exception as error:
+        LOGGER.error(f"ExceptionError: {error}")
+        abort(500, error)
 
     if all_books is None:
-        return jsonify({"Warning": "There is no data to show"})
+        return jsonify({"message": "There is no data to show"})
 
     LOGGER.info("Response the list of books")
     return get_paginated_list(
@@ -79,7 +80,7 @@ def books_detail(id):
     List details for a book
     """
 
-    book_instance = book_instance = Book.query.get_or_404(id)
+    book_instance = Book.query.get_or_404(id)
     author_instance = AuthorBook.query.filter_by(book_id=book_instance.id).all()
     authors = [author.author_id for author in author_instance]
 
