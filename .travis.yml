@@ -10,3 +10,8 @@ matrix:
             - python --version
           script:
             - flake8
+            - pytest
+            - coverage erase
+            - coverage run -m pytest && coverage html
+          after_success:
+            - bash <(curl -s https://codecov.io/bash)
