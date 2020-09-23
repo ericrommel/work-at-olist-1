@@ -13,6 +13,10 @@ flask = "*"
 python-dotenv = "*"
 pep8 = "*"
 flake8 = "*"
+flask-sqlalchemy = "*"
+flask-migrate = "*"
+flask-marshmallow = "*"
+marshmallow-sqlalchemy = "*"
 
 [requires]
 python_version = "3.8"
