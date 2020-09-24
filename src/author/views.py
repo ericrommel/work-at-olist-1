@@ -1,12 +1,12 @@
-import json
 import os
 from csv import DictReader
-from flask import abort, jsonify, request, app, url_for
-from sqlalchemy.exc import OperationalError, SQLAlchemyError
+
+from flask import abort, jsonify, request, url_for
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.utils import secure_filename
 
 from . import author
-from .. import allowed_file, current_dir, db, LOGGER, UPLOAD_FOLDER
+from .. import allowed_file, current_dir, db, LOGGER
 from ..models import Author, authors_schema, author_schema, AuthorBook
 
 

@@ -14,22 +14,6 @@ def get_url(app, url, next_url=None, id=None):
         return url_for(url, next=next_url, id=id)
 
 
-def generic_put(self, url, a_dict):
-    """
-    Generic PUT request
-    """
-
-    return self._client.put(url, data=json.dumps(a_dict), content_type="application/json", follow_redirects=True)
-
-
-def generic_post(self, url, a_dict):
-    """
-    Generic POST request
-    """
-
-    return self._client.post(url, data=json.dumps(a_dict), content_type="application/json", follow_redirects=True)
-
-
 @pytest.fixture()
 def app():
     """
@@ -64,25 +48,22 @@ def app():
         book_2.name = "The Saint and The Sow"
         book_2.edition = "3rd Edition"
         book_2.publication_year = "2002"
-
         db.session.add(author_1)
         db.session.add(author_2)
         db.session.add(book_1)
-        db.session.add(book_1)
+        db.session.add(book_2)
         db.session.commit()
 
         # Create 2 associations
+        author_book_1 = AuthorBook()
         book_1 = Book.query.filter_by(name="The Paul Street Boys").first()
         author_1 = Author.query.filter_by(name="Molnar Ferenc").first()
-
-        book_2 = Book.query.filter_by(name="The Saint and The Sow").first()
-        author_2 = Author.query.filter_by(name="Ariano Suassuna").first()
-
-        author_book_1 = AuthorBook()
         author_book_1.book_id = book_1.id
         author_book_1.author_id = author_1.id
 
         author_book_2 = AuthorBook()
+        book_2 = Book.query.filter_by(name="The Saint and The Sow").first()
+        author_2 = Author.query.filter_by(name="Ariano Suassuna").first()
         author_book_2.book_id = book_2.id
         author_book_2.author_id = author_2.id
 
@@ -108,6 +89,10 @@ def client(app):
 
 @pytest.fixture
 def runner(app):
+    """
+    Runner server
+    """
+
     return app.test_cli_runner()
 
 
