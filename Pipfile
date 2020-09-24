@@ -17,6 +17,8 @@ flask-sqlalchemy = "*"
 flask-migrate = "*"
 flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
+pytest = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.8"

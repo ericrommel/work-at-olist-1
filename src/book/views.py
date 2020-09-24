@@ -75,7 +75,7 @@ def list_books(page=1, per_page=20):
 
 
 @book.route("/books/<int:id>", methods=["GET"])
-def books_detail(id):
+def book_detail(id):
     """
     List details for a book
     """
