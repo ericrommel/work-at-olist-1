@@ -1,7 +1,7 @@
 deploy:
   provider: heroku
   api_key:
-    secure: "YOUR ENCRYPTED API KEY"
+    secure: "75c98af0-22a3-47d7-98dc-a5ec0169350f"
 
 matrix:
     include:
