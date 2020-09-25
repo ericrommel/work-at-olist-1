@@ -57,7 +57,19 @@ def list_books(page=1, per_page=20):
     LOGGER.info("Get the list of books from the database")
     all_books = None
     try:
-        all_books = books_schema.dump(Book.query.order_by(Book.name.asc()))
+        query = db.session.query(Book)
+
+        if "name" in request.args:
+            query = query.filter(Book.name.like(f'%{request.args.get("name")}%'))
+
+        if "edition" in request.args:
+            query = query.filter(Book.edition.like(f'%{request.args.get("edition")}%'))
+
+        if "publication_year" in request.args:
+            query = query.filter(Book.publication_year.like(f'%{request.args.get("publication_year")}%'))
+
+        all_books = books_schema.dump(query.order_by(Book.name.asc()).all(), many=True)
+
     except Exception as error:
         LOGGER.error(f"ExceptionError: {error}")
         abort(500, error)
@@ -108,7 +120,8 @@ def add_book():
             LOGGER.info(f'{m_field} key is missing.')
             missing_fields.append(m_field)
     if missing_fields:
-        abort(400, f"{' and '.join(missing_fields)} {'field is' if len(missing_fields) == 1 else 'fields are'} missing.")
+        abort(400,
+              f"{' and '.join(missing_fields)} {'field is' if len(missing_fields) == 1 else 'fields are'} missing.")
 
     LOGGER.info("Set book variables from request")
     book_instance = Book()
@@ -148,12 +161,11 @@ def add_book():
     author_instance = AuthorBook.query.filter_by(book_id=book_instance.id).all()
     authors = [author.author_id for author in author_instance]
 
-    return {
-        'id': book_instance.id,
-        'name': book_instance.name,
-        'publication_year': book_instance.publication_year,
-        'authors': authors
-    }, 201
+    return {'id': book_instance.id,
+            'name': book_instance.name,
+            'publication_year': book_instance.publication_year,
+            'authors': authors
+            }, 201
 
 
 @book.route("/books/edit/<int:id>", methods=["PUT"])
@@ -200,12 +212,11 @@ def edit_book(id):
     author_instance = AuthorBook.query.filter_by(book_id=book_instance.id).all()
     authors = [author.author_id for author in author_instance]
 
-    return {
-        'id': book_instance.id,
-        'name': book_instance.name,
-        'publication_year': book_instance.publication_year,
-        'authors': authors
-    }, 200
+    return {'id': book_instance.id,
+            'name': book_instance.name,
+            'publication_year': book_instance.publication_year,
+            'authors': authors
+            }, 200
 
 
 @book.route("/books/delete/<int:id>", methods=["DELETE"])
