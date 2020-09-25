@@ -1,0 +1,780 @@
+{
+	"info": {
+		"_postman_id": "00e0c653-f290-40bb-8f08-8c8e99e817c3",
+		"name": "Work-at-Olist API Documentation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Books",
+			"item": [
+				{
+					"name": "Add book",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7fbd5939-80cc-4bb5-a755-7f47ffb3b5d7",
+								"exec": [
+									"pm.test(\"Response code is 201\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is Created\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'CREATED');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "196c5908-fa8f-4566-bf84-09921e0de8d9",
+								"exec": [
+									"// Book name generator (there are 50 book names here)\r",
+									"function generator() {\r",
+									"    const bookName = [\"In Search of Lost Time\", \"Ulysses\", \"Don Quixote by Miguel de Cervantes\", \"The Great Gatsby\", \"One Hundred Years of Solitude\", \"Moby Dick\", \"War and Peace\", \"Lolita\", \"Hamlet\", \"The Catcher in the Rye\", \"The Odyssey\", \"The Brothers Karamazov\", \"Crime and Punishment\", \"Madame Bovary\", \"The Divine Comedy\", \"The Adventures of Huckleberry Finn\", \"Alice's Adventures in Wonderland\", \"Pride and Prejudice\", \"Wuthering Heights\", \"To the Lighthouse\", \"Catch-22\", \"The Sound and the Fury\", \"Nineteen Eighty Four\", \"Anna Karenina\", \"The Iliad\", \"Heart of Darkness\", \"The Grapes of Wrath\", \"Invisible Man\", \"To Kill a Mockingbird\", \"Middlemarch\", \"Great Expectations\", \"Gulliver's Travels\", \"Absalom, Absalom!\", \"Beloved\", \"The Stranger\", \"Jane Eyre\", \"One Thousand and One Nights\", \"The Trial\", \"The Red and the Black\", \"Mrs. Dalloway\", \"The Stories of Anton Chekhov\", \"The Sun Also Rises\", \"David Copperfield\", \"A Portrait of the Artist as a Young Man\", \"Midnight's Children\", \"Collected Fiction\", \"Tristram Shandy\", \"Leaves of Grass\", \"The Aeneid\", \"Candide\"\r",
+									"    ];\r",
+									"    return bookName[Math.floor(Math.random() * bookName.length)]\r",
+									"}\r",
+									"\r",
+									"pm.environment.set('bookName', `${generator()}`)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{bookName}}\",\r\n    \"edition\": \"1st edition\",\r\n    \"publication_year\": 2000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/books/add",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"books",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List books",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f5da9ed6-da74-4ba6-94ea-9d9aad17142d",
+								"exec": [
+									"pm.test(\"Response code is 200\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is OK\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"for (var i of pm.response.json().results) {\r",
+									"    pm.environment.set('bookId', i.id)\r",
+									"    break\r",
+									"}\r",
+									"\r",
+									"pm.test(`Book selected: ${pm.environment.get('bookId')}`, function () {\r",
+									"    pm.expect(true).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/books?start=1&limit=10",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"books"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "name",
+									"value": "Grapes",
+									"disabled": true
+								},
+								{
+									"key": "edition",
+									"value": "2nd",
+									"disabled": true
+								},
+								{
+									"key": "publication_year",
+									"value": "2019",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Detail a book",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "afc8afda-e6a8-4b7a-b4cb-fa991d9c2e50",
+								"exec": [
+									"pm.test(\"Response code is 200\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is OK\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/books/{{bookId}}",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"books",
+								"{{bookId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit a book",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "689d6b1d-2256-42b6-bddd-eca77349e1cb",
+								"exec": [
+									"pm.test(\"Response code is 200\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is OK\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "ba7e9a6d-9ddd-478f-921c-4c5de9f80df1",
+								"exec": [
+									"// Book name generator (there are 50 book names here)\r",
+									"function generator() {\r",
+									"    const bookName = [\"In Search of Lost Time\", \"Ulysses\", \"Don Quixote by Miguel de Cervantes\", \"The Great Gatsby\", \"One Hundred Years of Solitude\", \"Moby Dick\", \"War and Peace\", \"Lolita\", \"Hamlet\", \"The Catcher in the Rye\", \"The Odyssey\", \"The Brothers Karamazov\", \"Crime and Punishment\", \"Madame Bovary\", \"The Divine Comedy\", \"The Adventures of Huckleberry Finn\", \"Alice's Adventures in Wonderland\", \"Pride and Prejudice\", \"Wuthering Heights\", \"To the Lighthouse\", \"Catch-22\", \"The Sound and the Fury\", \"Nineteen Eighty Four\", \"Anna Karenina\", \"The Iliad\", \"Heart of Darkness\", \"The Grapes of Wrath\", \"Invisible Man\", \"To Kill a Mockingbird\", \"Middlemarch\", \"Great Expectations\", \"Gulliver's Travels\", \"Absalom, Absalom!\", \"Beloved\", \"The Stranger\", \"Jane Eyre\", \"One Thousand and One Nights\", \"The Trial\", \"The Red and the Black\", \"Mrs. Dalloway\", \"The Stories of Anton Chekhov\", \"The Sun Also Rises\", \"David Copperfield\", \"A Portrait of the Artist as a Young Man\", \"Midnight's Children\", \"Collected Fiction\", \"Tristram Shandy\", \"Leaves of Grass\", \"The Aeneid\", \"Candide\"\r",
+									"    ];\r",
+									"    return bookName[Math.floor(Math.random() * bookName.length)]\r",
+									"}\r",
+									"\r",
+									"pm.environment.set('bookName', `${generator()}`)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"edition\": \"2st edition\",\r\n    \"name\": \"{{bookName}}\",\r\n    \"publication_year\": 2019\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/books/edit/{{bookId}}",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"books",
+								"edit",
+								"{{bookId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a book",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "669013dc-4fb2-4093-955d-a47ce2e0b85a",
+								"exec": [
+									"pm.test(\"Response code is 200\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is OK\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response message should be 'The book has successfully been deleted.'\", function () {\r",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"The book has successfully been deleted.\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/books/delete/{{bookId}}",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"books",
+								"delete",
+								"{{bookId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Authors",
+			"item": [
+				{
+					"name": "Add authors in bulk (no file selected)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "17acb6d7-5a7a-485d-a6c8-78d2d4886d8f",
+								"exec": [
+									"pm.test(\"Response code is 201\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is CREATED\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'CREATED');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response message should be 'The authors have successfully been imported.'\", function () {\r",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"The authors have successfully been imported.\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{api}}/authors/add/bulk",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"authors",
+								"add",
+								"bulk"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add authors in bulk (using a file selected)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6834437a-0e43-4d69-810b-a868287916a8",
+								"exec": [
+									"pm.test(\"Response code is 201\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is CREATED\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'CREATED');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response message should be 'The authors have successfully been imported.'\", function () {\r",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"The authors have successfully been imported.\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "csv_upload",
+									"type": "file",
+									"src": "/D:/repos/pessoal/projects/work-at-olist-1/src/author/authors_bulk.csv"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{api}}/authors/add/bulk",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"authors",
+								"add",
+								"bulk"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add author",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "437e0e42-338f-4c2e-904e-43d838daada0",
+								"exec": [
+									"pm.test(\"Response code is 201\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is Created\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'CREATED');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "26b99c2c-9a44-4535-8421-f3c323c2f4fc",
+								"exec": [
+									"// Author name generator (there are 50 author names here)\r",
+									"function generator() {\r",
+									"    const authorName = [\"Marcel Proust\", \"James Joyce\", \"Miguel de Cervantes\", \"F. Scott Fitzgerald\", \"Gabriel Garcia Marquez\", \"Herman Melville\", \"Leo Tolstoy\", \"Vladimir Nabokov\", \"William Shakespeare\", \"J. D. Salinger\", \"Homer\", \"Fyodor Dostoyevsky\", \"Fyodor Dostoyevsky\", \"Gustave Flaubert\", \"Dante Alighieri\", \"Mark Twain\", \"Lewis Carroll\", \"Jane Austen\", \"Emily Brontë\", \"Virginia Woolf\", \"Joseph Heller\", \"William Faulkner\", \"George Orwell\", \"Leo Tolstoy\", \"Homer\", \"Joseph Conrad\", \"John Steinbeck\", \"Ralph Ellison\", \"Harper Lee\", \"George Eliot\", \"Charles Dickens\", \"Jonathan Swift\", \"William Faulkner\", \"Toni Morrison\", \"Albert Camus\", \"Charlotte Bronte\", \"Lev Grossman\", \"Franz Kafka\", \"Stendhal\", \"Virginia Woolf\", \"Anton Chekhov\", \"Ernest Hemingway\", \"Charles Dickens\", \"James Joyce\", \"Salman Rushdie\", \"Jorge Luis Borges\", \"Laurence Sterne\", \"Walt Whitman\", \"Virgil\", \"Voltaire\"\r",
+									"    ];\r",
+									"    return authorName[Math.floor(Math.random() * authorName.length)]\r",
+									"}\r",
+									"\r",
+									"pm.environment.set('authorName', `${generator()}`)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{authorName}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/authors/add",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"authors",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List authors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "5fbbf738-811f-4e67-a3a3-20a6356a9141",
+								"exec": [
+									"pm.test(\"Response code is 200\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is OK\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"for (var i of pm.response.json().results) {\r",
+									"    pm.environment.set('authorId', i.id)\r",
+									"    pm.environment.set('authorName', i.name)\r",
+									"    break\r",
+									"}\r",
+									"\r",
+									"pm.test(`Author selected: ${pm.environment.get('authorId')} - ${pm.environment.get('authorName')} `, function () {\r",
+									"    pm.expect(true).to.be.true;\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/authors?start=1&limit=10",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"authors"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "name",
+									"value": "Abigail",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Detail an author",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "94130a89-9add-4b43-80e6-0c436209b2ee",
+								"exec": [
+									"pm.test(\"Response code is 200\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is OK\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/authors/{{authorId}}",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"authors",
+								"{{authorId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit an author",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "93ba1383-ceb1-409a-9bb1-5d9ef91a151c",
+								"exec": [
+									"pm.test(\"Response code is 200\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is OK\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "8e8a3e48-2556-465f-82c4-41de5b03a78a",
+								"exec": [
+									"// Author name generator (there are 50 author names here)\r",
+									"function generator() {\r",
+									"    const authorName = [\"Marcel Proust\", \"James Joyce\", \"Miguel de Cervantes\", \"F. Scott Fitzgerald\", \"Gabriel Garcia Marquez\", \"Herman Melville\", \"Leo Tolstoy\", \"Vladimir Nabokov\", \"William Shakespeare\", \"J. D. Salinger\", \"Homer\", \"Fyodor Dostoyevsky\", \"Fyodor Dostoyevsky\", \"Gustave Flaubert\", \"Dante Alighieri\", \"Mark Twain\", \"Lewis Carroll\", \"Jane Austen\", \"Emily Brontë\", \"Virginia Woolf\", \"Joseph Heller\", \"William Faulkner\", \"George Orwell\", \"Leo Tolstoy\", \"Homer\", \"Joseph Conrad\", \"John Steinbeck\", \"Ralph Ellison\", \"Harper Lee\", \"George Eliot\", \"Charles Dickens\", \"Jonathan Swift\", \"William Faulkner\", \"Toni Morrison\", \"Albert Camus\", \"Charlotte Bronte\", \"Lev Grossman\", \"Franz Kafka\", \"Stendhal\", \"Virginia Woolf\", \"Anton Chekhov\", \"Ernest Hemingway\", \"Charles Dickens\", \"James Joyce\", \"Salman Rushdie\", \"Jorge Luis Borges\", \"Laurence Sterne\", \"Walt Whitman\", \"Virgil\", \"Voltaire\"\r",
+									"    ];\r",
+									"    return authorName[Math.floor(Math.random() * authorName.length)]\r",
+									"}\r",
+									"\r",
+									"pm.environment.set('authorName', `${generator()}`)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"{{authorName}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/authors/edit/{{authorId}}",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"authors",
+								"edit",
+								"{{authorId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete an author Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6112d38e-9b73-4841-85a1-17f7b5fb14a0",
+								"exec": [
+									"pm.test(\"Response code is 200\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is OK\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response message should be 'The author has successfully been deleted.'\", function () {\r",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"The author has successfully been deleted.\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/authors/delete/{{authorId}}",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"authors",
+								"delete",
+								"{{authorId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
