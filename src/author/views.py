@@ -58,7 +58,13 @@ def list_authors(page=1, per_page=20):
     LOGGER.info("Get the list of authors from the database")
     all_authors = None
     try:
-        all_authors = authors_schema.dump(Author.query.order_by(Author.name.asc()), many=True)
+        query = db.session.query(Author)
+
+        if "name" in request.args:
+            query = query.filter(Author.name.like(f'%{request.args.get("name")}%'))
+
+        all_authors = authors_schema.dump(query.order_by(Author.name.asc()).all(), many=True)
+
     except Exception as error:
         LOGGER.error(f"ExceptionError: {error}")
         abort(500, error)
