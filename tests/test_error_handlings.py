@@ -55,12 +55,12 @@ def test_404_not_found(app, client):
 
 def test_405_not_found(app, client):
     """
-    Access a page that does not exist
+    Access a method that is not allowed
     """
 
     @app.route("/405", methods=["DELETE"])
     def method_not_allowed():
-        pass
+        abort(405)
 
     response = client.get("/405")
     assert response.status_code == 405
