@@ -54,7 +54,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{bookName}}\",\r\n    \"edition\": \"1st edition\",\r\n    \"publication_year\": 2020\r\n}",
+							"raw": "{\r\n    \"name\": \"{{bookName}}\",\r\n    \"edition\": \"1st edition\",\r\n    \"publication_year\": 2000\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -283,6 +283,11 @@
 								{
 									"key": "limit",
 									"value": "10"
+								},
+								{
+									"key": "name",
+									"value": "Abigail",
+									"disabled": true
 								}
 							]
 						}
@@ -433,6 +438,11 @@
 								{
 									"key": "limit",
 									"value": "10"
+								},
+								{
+									"key": "name",
+									"value": "Abigail",
+									"disabled": true
 								}
 							]
 						}
@@ -510,6 +520,344 @@
 					"response": []
 				},
 				{
+					"name": "List books (with filter NAME)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a1693efb-2a72-45c1-b5fc-6932daae969d",
+								"exec": [
+									"pm.test(\"Response code is 200\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is OK\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"for (var i of pm.response.json().results) {\r",
+									"    pm.environment.set('bookId', i.id)\r",
+									"    break\r",
+									"}\r",
+									"\r",
+									"pm.test(`Book selected: ${pm.environment.get('bookId')}`, function () {\r",
+									"    pm.expect(true).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/books?start=1&limit=10&name=Grapes",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"books"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "name",
+									"value": "Grapes"
+								},
+								{
+									"key": "edition",
+									"value": "2nd",
+									"disabled": true
+								},
+								{
+									"key": "publication_year",
+									"value": "2019",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List books (with filter EDITION)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7c3966a2-500e-4565-81f4-64368114cdf0",
+								"exec": [
+									"pm.test(\"Response code is 200\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is OK\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"for (var i of pm.response.json().results) {\r",
+									"    pm.environment.set('bookId', i.id)\r",
+									"    break\r",
+									"}\r",
+									"\r",
+									"pm.test(`Book selected: ${pm.environment.get('bookId')}`, function () {\r",
+									"    pm.expect(true).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/books?start=1&limit=10&edition=2nd",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"books"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "name",
+									"value": "Grapes",
+									"disabled": true
+								},
+								{
+									"key": "edition",
+									"value": "2nd"
+								},
+								{
+									"key": "publication_year",
+									"value": "2019",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List books (with filter PUBLICATION_YEAR)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d16331a2-d64d-4cb5-9687-b2d98bb74771",
+								"exec": [
+									"pm.test(\"Response code is 200\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is OK\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"for (var i of pm.response.json().results) {\r",
+									"    pm.environment.set('bookId', i.id)\r",
+									"    break\r",
+									"}\r",
+									"\r",
+									"pm.test(`Book selected: ${pm.environment.get('bookId')}`, function () {\r",
+									"    pm.expect(true).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/books?start=1&limit=10&publication_year=2019",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"books"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "name",
+									"value": "Grapes",
+									"disabled": true
+								},
+								{
+									"key": "edition",
+									"value": "2nd",
+									"disabled": true
+								},
+								{
+									"key": "publication_year",
+									"value": "2019"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List books (with filter combination of all)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "594d3e97-eeb6-4943-9322-8baa4d90937d",
+								"exec": [
+									"pm.test(\"Response code is 200\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is OK\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"for (var i of pm.response.json().results) {\r",
+									"    pm.environment.set('bookId', i.id)\r",
+									"    break\r",
+									"}\r",
+									"\r",
+									"pm.test(`Book selected: ${pm.environment.get('bookId')}`, function () {\r",
+									"    pm.expect(true).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/books?start=1&limit=10&name=Grapes&edition=2nd&publication_year=2019",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"books"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "name",
+									"value": "Grapes"
+								},
+								{
+									"key": "edition",
+									"value": "2nd"
+								},
+								{
+									"key": "publication_year",
+									"value": "2019"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "List books",
 					"event": [
 						{
@@ -574,6 +922,21 @@
 								{
 									"key": "limit",
 									"value": "10"
+								},
+								{
+									"key": "name",
+									"value": "Grapes",
+									"disabled": true
+								},
+								{
+									"key": "edition",
+									"value": "2nd",
+									"disabled": true
+								},
+								{
+									"key": "publication_year",
+									"value": "2019",
+									"disabled": true
 								}
 							]
 						}
@@ -839,6 +1202,11 @@
 								{
 									"key": "limit",
 									"value": "10"
+								},
+								{
+									"key": "name",
+									"value": "Abigail",
+									"disabled": true
 								}
 							]
 						}
@@ -1640,10 +2008,11 @@
 									"\r",
 									"for (var i of pm.response.json().results) {\r",
 									"    pm.environment.set('authorId', i.id)\r",
+									"    pm.environment.set('authorName', i.name)\r",
 									"    break\r",
 									"}\r",
 									"\r",
-									"pm.test(`Author selected: ${pm.environment.get('authorId')}`, function () {\r",
+									"pm.test(`Author selected: ${pm.environment.get('authorId')} - ${pm.environment.get('authorName')} `, function () {\r",
 									"    pm.expect(true).to.be.true;\r",
 									"});\r",
 									"\r",
@@ -1685,6 +2054,88 @@
 								{
 									"key": "limit",
 									"value": "10"
+								},
+								{
+									"key": "name",
+									"value": "Abigail",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List authors (using filter NAME)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c0a3602c-cd25-4b39-a6fe-ab25c973b685",
+								"exec": [
+									"pm.test(\"Response code is 200\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('code', 200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response status is OK\", function() {\r",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Body is not empty\", function () {\r",
+									"    pm.expect(pm.response.json()).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"for (var i of pm.response.json().results) {\r",
+									"    pm.environment.set('authorId', i.id)\r",
+									"    break\r",
+									"}\r",
+									"\r",
+									"pm.test(`Author selected: ${pm.environment.get('authorId')} - ${pm.environment.get('authorName')} `, function () {\r",
+									"    pm.expect(true).to.be.true;\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/authors?start=1&limit=10&name={{authorName}}",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"authors"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "name",
+									"value": "{{authorName}}"
 								}
 							]
 						}
