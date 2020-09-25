@@ -15,4 +15,3 @@ matrix:
             - coverage run -m pytest && coverage html
           after_success:
             - bash <(curl -s https://codecov.io/bash)
-            - deploy
