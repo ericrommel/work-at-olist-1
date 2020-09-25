@@ -88,4 +88,8 @@ def create_app(test_config=None):
         LOGGER.error(e)
         return jsonify(error=str(e)), 500
 
+    @app.route("/")
+    def home_view():
+        return "<h1>Welcome to Work-at-Olist by Eric Dantas</h1>"
+
     return app
