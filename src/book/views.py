@@ -14,16 +14,20 @@ def get_paginated_list(query_result, url: str, start: int, limit: int) -> dict:
     Return a paginate response
     """
 
-    if not isinstance(start, int):
-        start = int(start)
+    try:
+        if not isinstance(start, int):
+            start = int(start)
 
-    if not isinstance(limit, int):
-        limit = int(limit)
+        if not isinstance(limit, int):
+            limit = int(limit)
+    except ValueError as error:
+        LOGGER.error(f'ValueError: {error}')
+        abort(400, "Invalid value for the parameters")
 
     count = len(query_result)
 
     if count < start:
-        abort(404)
+        abort(404, "Start value is greater than the query results")
 
     pages = {"start": start, "limit": limit, "count": count}
 
@@ -54,28 +58,29 @@ def list_books(page=1, per_page=20):
     List all books
     """
 
+    request_fields = request.get_json() if request.get_json() else request.args
+
     LOGGER.info("Get the list of books from the database")
     all_books = None
     try:
         query = db.session.query(Book)
 
-        if "name" in request.args:
-            query = query.filter(Book.name.like(f'%{request.args.get("name")}%'))
+        if "name" in request_fields:
+            query = query.filter(Book.name.like(f'%{request_fields.get("name")}%'))
 
         if "edition" in request.args:
-            query = query.filter(Book.edition.like(f'%{request.args.get("edition")}%'))
+            query = query.filter(Book.edition.like(f'%{request_fields.get("edition")}%'))
 
         if "publication_year" in request.args:
-            query = query.filter(Book.publication_year.like(f'%{request.args.get("publication_year")}%'))
+            query = query.filter(Book.publication_year.like(f'%{request_fields.get("publication_year")}%'))
 
         all_books = books_schema.dump(query.order_by(Book.name.asc()).all(), many=True)
-
     except Exception as error:
         LOGGER.error(f"ExceptionError: {error}")
         abort(500, error)
 
-    if all_books is None:
-        return jsonify({"message": "There is no data to show"})
+    if not all_books:
+        return {"message": "There is no data to show"}, 404
 
     LOGGER.info("Response the list of books")
     return get_paginated_list(
@@ -237,4 +242,4 @@ def delete_book(id):
     except Exception as e:
         abort(500, e)
 
-    return jsonify({"message": "The book has successfully been deleted."}), 200
+    return {"message": "The book has successfully been deleted."}, 200
