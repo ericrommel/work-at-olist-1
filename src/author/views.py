@@ -15,16 +15,22 @@ def get_paginated_list(query_result: list, url: str, start: int, limit: int) -> 
     Return a paginate response
     """
 
-    if not isinstance(start, int):
-        start = int(start)
+    LOGGER.info("Prepare pagination")
+    try:
+        if not isinstance(start, int):
+            start = int(start)
 
-    if not isinstance(limit, int):
-        limit = int(limit)
+        if not isinstance(limit, int):
+            limit = int(limit)
+
+    except ValueError as error:
+        LOGGER.error(f'ValueError: {error}')
+        abort(400, "Invalid value for the parameters")
 
     count = len(query_result)
 
     if count < start:
-        abort(404)
+        abort(404, "Start value is greater than the query results")
 
     pages = {"start": start, "limit": limit, "count": count}
 
@@ -44,6 +50,7 @@ def get_paginated_list(query_result: list, url: str, start: int, limit: int) -> 
 
     LOGGER.info("Extract result according to the bounds")
     pages["results"] = query_result[(start - 1): (start - 1 + limit)]
+
     return pages
 
 
@@ -55,30 +62,32 @@ def list_authors(page=1, per_page=20):
     List all authors
     """
 
+    request_fields = request.get_json() if request.get_json() else request.args
+
     LOGGER.info("Get the list of authors from the database")
     all_authors = None
     try:
         query = db.session.query(Author)
 
-        if "name" in request.args:
-            query = query.filter(Author.name.like(f'%{request.args.get("name")}%'))
+        if "name" in request_fields:
+            LOGGER.info(f"Filtering by {request_fields.get('name')}")
+            query = query.filter(Author.name.like(f'%{request_fields.get("name")}%'))
 
         all_authors = authors_schema.dump(query.order_by(Author.name.asc()).all(), many=True)
-
     except Exception as error:
         LOGGER.error(f"ExceptionError: {error}")
         abort(500, error)
 
-    if all_authors is None:
-        return jsonify({"message": "There is no data to show"})
+    if not all_authors:
+        return {"message": "There is no data to show"}, 404
 
-    LOGGER.info(f"Response the list of authors: {all_authors}")
+    LOGGER.info("Response the list of authors")
     return get_paginated_list(
         query_result=all_authors,
         url=url_for("author.list_authors"),
-        start=request.args.get("start", page),
-        limit=request.args.get("limit", per_page),
-    )
+        start=request_fields.get("start", page),
+        limit=request_fields.get("limit", per_page),
+    ), 200
 
 
 @author.route("/authors/<int:id>", methods=["GET"])
@@ -106,14 +115,11 @@ def add_author():
     """
 
     request_fields = request.get_json() if request.get_json() else request.form
-    if not request_fields:
+    if "name" not in request_fields:
         abort(400, "Name is a mandatory field.")
 
     author_instance = Author()
-    try:
-        author_instance.name = request_fields.get("name")
-    except KeyError as e:
-        abort(400, "Name is a mandatory field.")
+    author_instance.name = request_fields.get("name")
 
     if request_fields.get("name") is None or not request_fields.get("name").strip():
         abort(400, "Name cannot be empty or null.")
@@ -139,31 +145,39 @@ def add_author_bulk():
 
     LOGGER.info('Import authors in bulk')
 
-    csv_file = 'author/authors_bulk.csv'
-    data_file = os.path.join(current_dir, csv_file)
+    data_file = os.path.join(current_dir, 'author/authors_bulk.csv')
 
-    if 'csv_upload' in request.files:
+    request_fields = request.get_json() if request.get_json() else request.files
+
+    if 'csv_upload' in request_fields:
         LOGGER.info('Request there is a file part. Using it.')
         data_file = request.files['csv_upload']
-        if data_file and allowed_file(data_file.filename):
-            filename = secure_filename(data_file.filename)
-            data_file.save(os.path.join(current_dir, f'static/{filename}'))
-            data_file = os.path.join(current_dir, f'static/{data_file.filename}')
+        if not allowed_file(data_file.filename):
+            abort(400, "File not allowed")
 
-    with open(data_file, newline='') as csv_file:
-        reader = DictReader(csv_file)
+        filename = secure_filename(data_file.filename)
+        data_file.save(os.path.join(current_dir, f'static/{filename}'))
+        data_file = os.path.join(current_dir, f'static/{data_file.filename}')
 
-        LOGGER.info("Add authors in bulk to the database")
-        try:
-            db.session.bulk_insert_mappings(Author, reader)
-            db.session.commit()
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            abort(403, f"SQLAlchemyError: {e}")
-        except Exception as e:
-            abort(500, e)
+    try:
+        with open(data_file, newline='', encoding='utf-8') as csv_file:
+            reader = DictReader(csv_file)
 
-    return jsonify({"message": "The authors have successfully been imported."}), 201
+            LOGGER.info("Add authors in bulk to the database")
+            try:
+                db.session.bulk_insert_mappings(Author, reader)
+                db.session.commit()
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                abort(403, f"SQLAlchemyError: {e}")
+            except Exception as e:
+                abort(500, e)
+
+    except FileNotFoundError as error:
+        LOGGER.error(f'FileNotFoundException: {error}')
+        abort(400, error)
+
+    return {"message": "The authors have successfully been imported."}, 201
 
 
 @author.route("/authors/edit/<int:id>", methods=["PUT"])
@@ -176,10 +190,14 @@ def edit_author(id):
 
     LOGGER.info("Set author variable from request")
     request_fields = request.get_json() if request.get_json() else request.form
-    try:
-        author_instance.name = request_fields.get("name")
-    except KeyError as e:
-        abort(400, f"There is no key with that value: {e}")
+
+    if "name" not in request_fields:
+        abort(400, "Name is a mandatory field.")
+
+    if request_fields.get("name") is None or not request_fields.get("name").strip():
+        abort(400, "Name cannot be empty or null.")
+
+    author_instance.name = request_fields.get("name")
 
     LOGGER.info(f"Edit author {author_instance.id} in the database")
     try:
@@ -211,4 +229,4 @@ def delete_author(id):
     except Exception as e:
         abort(500, e)
 
-    return jsonify({"message": "The author has successfully been deleted."}), 200
+    return {"message": "The author has successfully been deleted."}, 200

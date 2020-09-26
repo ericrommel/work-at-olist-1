@@ -79,7 +79,7 @@ def create_app(test_config=None):
         return jsonify(error=str(e)), 404
 
     @app.errorhandler(405)
-    def not_logged(e):
+    def method_not_allowed(e):
         LOGGER.error(e)
         return jsonify(error=str(e)), 405
 
