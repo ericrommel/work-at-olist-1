@@ -135,9 +135,8 @@ def test_add_author_bulk_passing_file_view(app, client):
     Test add author in bulk. A file is sent from the request
     """
 
-    current_dir = os.path.abspath(os.path.dirname(__file__))
     csv_file = 'another_authors_bulk.csv'
-    data_file = os.path.join(current_dir, csv_file)
+    data_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), csv_file)
 
     response = client.post(
         get_url(app=app, url="author.add_author_bulk"),
