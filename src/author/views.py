@@ -158,7 +158,9 @@ def add_author_bulk():
 
         filename = secure_filename(data_file.filename)
         data_file.save(pathlib.Path(current_dir, f'static/{filename}'))
+        data_file.close()
         data_file = pathlib.Path(current_dir, f'static/{filename}')
+
     try:
         with open(data_file, newline='', encoding='utf-8') as csv_file:
             reader = DictReader(csv_file)
