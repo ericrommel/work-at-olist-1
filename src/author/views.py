@@ -3,6 +3,7 @@ from csv import DictReader
 
 from flask import abort, jsonify, request, url_for
 from sqlalchemy.exc import SQLAlchemyError
+from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
 from . import author
@@ -152,13 +153,18 @@ def add_author_bulk():
     if 'csv_upload' in request_fields:
         LOGGER.info('Request there is a file part. Using it.')
         data_file = request.files['csv_upload']
+        LOGGER.debug(f'DataFile: {data_file}')
+        LOGGER.debug(f'DataFile: {data_file.headers}')
         if not allowed_file(data_file.filename):
             abort(400, "File not allowed")
 
         filename = secure_filename(data_file.filename)
+        LOGGER.debug(f'Filename: {filename}')
         data_file.save(os.path.join(current_dir, f'static/{filename}'))
-        data_file = os.path.join(current_dir, f'static/{data_file.filename}')
-
+        LOGGER.debug(f'DataFile: {data_file}')
+        LOGGER.debug(f'DataFile: {data_file.headers}')
+        data_file = os.path.join("", f'static/{filename}')
+        LOGGER.debug(data_file)
     try:
         with open(data_file, newline='', encoding='utf-8') as csv_file:
             reader = DictReader(csv_file)
