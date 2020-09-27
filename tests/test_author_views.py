@@ -1,5 +1,6 @@
 import json
 import os
+import pathlib
 from io import BytesIO
 
 from tests.conftest import get_url
@@ -138,11 +139,12 @@ def test_add_author_bulk_passing_file_view(app, client):
     current_dir = os.path.abspath(os.path.dirname(__file__))
     csv_file = 'another_authors_bulk.csv'
     data_file = os.path.join(current_dir, csv_file)
+    data_file = pathlib.Path(current_dir, csv_file)
 
     response = client.post(
         get_url(app=app, url="author.add_author_bulk"),
         data={
-            "csv_upload": (open(data_file, 'rb'), data_file)
+            "csv_upload": (open(data_file, 'rb'), data_file.name)
         },
         content_type="multipart/form-data;",
         follow_redirects=True
