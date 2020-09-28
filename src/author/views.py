@@ -146,7 +146,7 @@ def add_author_bulk():
 
     LOGGER.info('Import authors in bulk')
 
-    data_file = os.path.join(current_dir, 'author/authors_bulk.csv')
+    data_file = pathlib.Path(current_dir, 'author', 'authors_bulk.csv')
 
     request_fields = request.get_json() if request.get_json() else request.files
 
@@ -157,9 +157,9 @@ def add_author_bulk():
             abort(400, "File not allowed")
 
         filename = secure_filename(data_file.filename)
-        data_file.save(pathlib.Path(current_dir, f'static/{filename}'))
+        data_file.save(pathlib.Path(current_dir, 'static', filename))
         data_file.close()
-        data_file = pathlib.Path(current_dir, f'static/{filename}')
+        data_file = pathlib.Path(current_dir, 'static', filename)
 
     try:
         with open(data_file, newline='', encoding='utf-8') as csv_file:
